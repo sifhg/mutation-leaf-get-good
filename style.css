@@ -1,0 +1,53 @@
+@import url('https://fonts.googleapis.com/css2?family=Alegreya+Sans:ital,wght@0,500;0,800;1,500;1,800&family=Roboto:ital,wght@0,900;1,900&display=swap');
+
+:root {
+    font-size: 20px;
+    --h1-size: 2rem;
+
+    /* Colours from https://huemint.com/illustration-1/#palette=100c0a-257e50-61b038-c7d997-da591a-5d2c1b*/
+    --background-colour-dark: hsl(20, 23%, 5%);
+    --background-colour-light: #f5f1ef;
+    --vein-colour: #257e50;
+    --leaf-colour-strong: #5fae37ff;
+    --leaf-colour-weak: #c7d89780;
+    --leaf-colour-damaged: #da591a;
+
+    background-color: var(--background-colour-dark);
+    color: var(--leaf-colour-strong);
+}
+
+body {
+    width: 60%;
+    margin: auto;
+    font-family: 'Alegreya Sans', sans-serif;
+    font-weight: 500;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+h1 {
+    color: var(--vein-colour);
+    font-family: 'Roboto', sans-serif;
+}
+
+#display {
+    width: 100%;
+    padding-bottom: 75%;
+    position: relative;
+    margin-bottom: 2rem;
+}
+#display canvas {
+    border: .1rem solid var(--leaf-colour-strong);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+input {
+    margin: 1rem 1rem 1rem .25rem;
+}
+label {
+    margin: 1rem 0 1rem 1rem;
+}
