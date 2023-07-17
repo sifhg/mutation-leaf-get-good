@@ -3,7 +3,6 @@ const DNA_SEQUENCE = document.getElementById("dna-sequence");
 const DNA_GENERATE = document.getElementById("generate-dna");
 
 ALLOW_DNA.addEventListener('change', (event) => {
-    console.log("checked");
     DNA_SEQUENCE.removeAttribute("disabled") 
     if (ALLOW_DNA.checked) {
         DNA_SEQUENCE.removeAttribute("disabled");
@@ -16,7 +15,7 @@ ALLOW_DNA.addEventListener('change', (event) => {
 
 DNA_GENERATE.addEventListener("click", (event) => {
     DNA_SEQUENCE.value = "";
-    for(let i = 0; i < 23; i++) {
+    for(let i = 0; i < 27; i++) {
         DNA_SEQUENCE.value += Math.floor(Math.random()*10);
     }
 });
