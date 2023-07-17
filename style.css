@@ -6,12 +6,12 @@
 
     /* Colours from https://huemint.com/illustration-1/#palette=100c0a-257e50-61b038-c7d997-da591a-5d2c1b*/
     --background-colour-dark: hsl(20, 23%, 5%);
-    --background-colour-light: #f5f1ef;
-    --vein-colour: #257e50;
-    --leaf-colour-strong: #5fae37ff;
-    --leaf-colour-weak: #c7d89780;
-    --leaf-colour-damaged: #da591a;
-    --grower-colour: #5d2c1b;
+    --background-colour-light: hsl(20, 23%, 95%);
+    --vein-colour: hsl(149, 55%, 32%);
+    --leaf-colour-strong: #5fae37;
+    --leaf-colour-weak: hsla(76, 45%, 72%, 0.502);
+    --leaf-colour-damaged: hsl(20, 79%, 48%);
+    --grower-colour: hsl(15, 55%, 24%);
 
     background-color: var(--background-colour-dark);
     color: var(--leaf-colour-strong);
@@ -40,7 +40,8 @@ h1 {
     margin-bottom: 2rem;
 }
 #display canvas {
-    border: .1rem solid var(--vein-colour);
+    border: .2rem solid var(--vein-colour);
+    border-radius: 1rem;
     position: absolute;
     top: 0;
     left: 0;

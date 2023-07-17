@@ -28,22 +28,24 @@ function setLightness(colour, lightness) {
     const H = hue(colour);
     const S = saturation(colour);
     const A = alpha(colour);
-    return color(`hsla(${H}, ${S}%, ${lightness}, ${A})`);
+    return color(`hsla(${H}, ${S}%, ${lightness}%, ${A})`);
 }
 
 function mixColours(colour1, colour2, weight) {
     //weight is a value between 0 and 1 that determines how close the mix should be to colour 2.
-    const H = hue(colour1) * (1-weight) + hue(colour2) * weight;
-    const S = saturation(colour1) * (1-weight) + saturation(colour2) * weight;
-    const L = lightness(colour1) * (1-weight) + lightness(colour2) * weight;
-    const A = alpha(colour1) * (1-weight) + alpha(colour2) * weight;
-    return color(`hsla(${H}, ${S}%, ${lightness}, ${A})`);
+    const H = (hue(colour1) * (1-weight)) + (hue(colour2) * weight);
+    const S = (saturation(colour1) * (1-weight)) + (saturation(colour2) * weight);
+    const L = (lightness(colour1) * (1-weight)) + (lightness(colour2) * weight);
+    const A = (alpha(colour1) * (1-weight)) + (alpha(colour2) * weight);
+    let mixedColour = color(`hsla(${floor(H)}, ${floor(S)}%, ${floor(L)}%, ${floor(A)})`);
+    return `hsla(${floor(H)}, ${floor(S)}%, ${floor(L)}%, ${floor(A)})`;
+    
 }
 
 class Grid {
     constructor(x, y) {
-        this.x;
-        this.y;
+        this.x = x;
+        this.y = y;
         this.grid = [];
         /*
         Grid values can be:
@@ -60,12 +62,22 @@ class Grid {
         }
     }
     display() {
-        for(w = 0; w < this.x; w++) {
-            for(h = 0; h < this.y; h++) {
+        const CELL_SIZE = {
+            x: width/(this.x*2),
+            y: height/(this.y*2)
+        }
+        for(let w = 0; w < this.x; w++) {
+            for(let h = 0; h < this.y; h++) {
+                const CELL_CENTER = {
+                    x: (w*width/this.x) + ((h%2 == 1) ? (1/4 * width/this.x): (3/4 * width/this.x)),
+                    y: h*height/this.y + CELL_SIZE.y
+                }
+
                 noStroke();
                 switch(this.grid[w][h][0]) {
                     case "E":
                         noFill();
+                        stroke(setAlpha(veinColour, 16));
                         break;
                     case "L":
                         fill(mixColours(leafColourStrong, leafColourWeak, 
@@ -79,15 +91,17 @@ class Grid {
                     default:
                         console.error("A grid state must begin with either 'E', 'V', 'L', or 'D'");
                 }
-                const C = {
-                    x: (w*width/this.x) + ((h%2 == 1) ? (1/4 * width/this.x): (3/4 * width/this.x)),
-                    y: h*height/this.y
+                push(); 
+                translate(CELL_CENTER.x, CELL_CENTER.y);
+                rotate(TWO_PI/4)
+                beginShape();
+                for(let a = 0; a < TWO_PI; a += TWO_PI/6) {
+                    const X = CELL_SIZE.y * 1.275 * cos(a);
+                    const Y = CELL_SIZE.x * 1.10 * sin(a);
+                    vertex(X, Y);
                 }
-                const octagon = {
-                    //x = [
-                    //    cos(0)
-                    //]
-                }
+                endShape(CLOSE);
+                pop(); 
             }
         }
     }
@@ -152,6 +166,9 @@ class Grower {
     }
 }
 
+let theGrid = new Grid(50, 50);
+let dayLength = 1000;
+
 function setup() {
     const DISPLAY = document.getElementById("display");
     let canvas = createCanvas(DISPLAY.offsetWidth, DISPLAY.offsetHeight);
@@ -161,4 +178,11 @@ function setup() {
         canvas.resize(DISPLAY.offsetWidth, DISPLAY.offsetHeight);
         background(backgroundColourDark);
     });
+}
+
+function draw() {
+    background(mixColours(backgroundColourDark, backgroundColourLight, 
+        map((frameCount%dayLength < dayLength/2) ? frameCount%dayLength : dayLength-(frameCount%dayLength), 0, dayLength/2, 0, 1)));
+    theGrid.display();
+    
 }
