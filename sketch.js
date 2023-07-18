@@ -44,7 +44,6 @@ function mixColours(colour1, colour2, weight) {
     const S = (saturation(colour1) * (1-weight)) + (saturation(colour2) * weight);
     const L = (lightness(colour1) * (1-weight)) + (lightness(colour2) * weight);
     const A = (alpha(colour1) * (1-weight)) + (alpha(colour2) * weight);
-    let mixedColour = color(`hsla(${floor(H)}, ${floor(S)}%, ${floor(L)}%, ${floor(A)})`);
     return `hsla(${floor(H)}, ${floor(S)}%, ${floor(L)}%, ${floor(A)})`;
     
 }
@@ -99,15 +98,15 @@ class Grid {
                         console.error("A grid state must begin with either 'E', 'V', 'L', or 'D'");
                 }
                 push(); 
-                translate(CELL_CENTER.x, CELL_CENTER.y);
-                rotate(TWO_PI/4)
-                beginShape();
-                for(let a = 0; a < TWO_PI; a += TWO_PI/6) {
-                    const X = CELL_SIZE.y * 1.275 * cos(a);
-                    const Y = CELL_SIZE.x * 1.10 * sin(a);
-                    vertex(X, Y);
-                }
-                endShape(CLOSE);
+                    translate(CELL_CENTER.x, CELL_CENTER.y);
+                    rotate(TWO_PI/4)
+                    beginShape();
+                        for(let a = 0; a < TWO_PI; a += TWO_PI/6) {
+                            const X = CELL_SIZE.y * 1.275 * cos(a);
+                            const Y = CELL_SIZE.x * 1.10 * sin(a);
+                            vertex(X, Y);
+                        }
+                    endShape(CLOSE);
                 pop(); 
             }
         }
@@ -119,7 +118,7 @@ class Neuron {
         this.weights = [];
         this.bias = wb[wb.length];
         for(let w = 0; w < wb.length-1; w++) {
-            thisweights.push(wb[w]);
+            this.weights.push(wb[w]);
         }
     }
     activate(signalIn) {
@@ -135,15 +134,15 @@ class Neuron {
     }
 }
 class NeuronLayer {
-    constructor(numberOfNeurons, numberOfWeights, wb) {
+    constructor(numberOfNeurons, numberOfInputs, wb) {
         this.weightsAndBiases = wb;
-        if(numberOfWeights != wb-1) {
-            console.error("In a neuron layer, the number of weights must match the length of array of weights inserted");
+        if(numberOfNeurons * (numberOfInputs + 1) != wb.length) {
+            console.error("In a neuron layer, the number of inputs must match the length of array of weights and biases", {numberOfInputs: numberOfInputs}, {wb: wb});
         }
         this.neurons = [];
-        for(n = 0; n < numberOfNeurons; n++) {
-            this.neurons.push(new Neuron(this.weightsAndBiases.slice(0,numberOfWeights+1)));
-            this.weightsAndBiases = this.weightsAndBiases.slice(numberOfWeights+1);
+        for(let n = 0; n < numberOfNeurons; n++) {
+            this.neurons.push(new Neuron(this.weightsAndBiases.slice(0,numberOfInputs+1)));
+            this.weightsAndBiases = this.weightsAndBiases.slice(numberOfInputs+1);
         }
     }
 }
@@ -156,7 +155,7 @@ class Grower {
         this.dna = DNA;
         this.neurons = [];
         this.kernelPosition = 0;
-        this.kernelSize = 4;
+        this.kernelSize = 3;
 
         if(!Number.isInteger(this.direction) || this.direction < 0 || this.direction > 5) {
             console.error(`Grower's direction must be an integer between 0 and 5. direction is currently ${this.direction}`);
@@ -171,18 +170,47 @@ class Grower {
         The second layer has a total of 12 weights and biases.
         That gives a total number of 33 weights and biases.
         */
-        this.neurons.push(new NeuronLayer(3, 6, this.dna[0,15]));
-        this.dna = this.dna.slice(15);
+        this.neurons.push(new NeuronLayer(3, 6, this.dna.slice(0,21)));
+        this.dna = this.dna.slice(21);
         this.neurons.push(new NeuronLayer(3, 3, this.dna));
         this.dna = DNA;
     }
-    display() {
+    display(grid) {
         noStroke();
-        fill()
+        fill(growerColours);
+        const CENTER = {
+            x: (this.x*width/grid.x) + ((this.y%2 == 1) ? (1/4 * width/grid.x): (3/4 * width/grid.x)),
+            y: this.y*height/grid.y + height/(grid.y*2)
+        }
+        
+
+        push(); 
+            translate(CENTER.x, CENTER.y);
+            rotate(-TWO_PI*(this.direction-1)/6)
+            const POINT0  = {
+                x: width/(grid.x*2) * cos(TWO_PI*11/12),
+                y: height/(grid.y*2) * sin(TWO_PI*11/12)
+            }
+            const POINT1  = {
+                x: width/(grid.x*2) * cos(TWO_PI*4/12),
+                y: height/(grid.y*2) * sin(TWO_PI*4/12)
+            }
+            const POINT2  = {
+                x: width/(grid.x*2) * cos(TWO_PI*9/12),
+                y: height/(grid.y*2) * sin(TWO_PI*9/12)
+            }
+            beginShape();
+                vertex(POINT0.x, POINT0.y);
+                vertex(POINT1.x, POINT1.y);
+                vertex(POINT2.x, POINT2.y);
+            endShape(CLOSE);
+            fill(255,0,0);
+        pop(); 
     }
 }
 
 let theGrid = new Grid(45, 30);
+let theGrower;
 let dayLength = 1000;
 let sunlight;
 let oneFrame = true;
@@ -205,6 +233,9 @@ function draw() {
     background(mixColours(backgroundColourDark, backgroundColourLight, sunlight));
     //background(backgroundColourDark);
     theGrid.display();
+    if(typeof theGrower != "undefined") {
+        theGrower.display(theGrid);
+    }
     if(oneFrame) {
         noLoop();
     }

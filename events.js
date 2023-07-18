@@ -22,10 +22,13 @@ DNA_GENERATE.addEventListener("click", (event) => {
     for(let i = 0; i < 33; i++) {
         DNA_SEQUENCE.value += Math.floor(Math.random()*10);
     }
+    theGrower = new Grower(0, Math.floor(theGrid.y/2), 3, DNA_SEQUENCE.value);
+    theGrower.display(theGrid);
 });
 
 EXECUTE.addEventListener("click", (event) => {
     EXECUTE.setAttribute("disabled", "");
+    EXECUTE_ONE.setAttribute("disabled", "");
     PAUSE.removeAttribute("disabled");
     oneFrame = false;
     loop();
@@ -34,6 +37,7 @@ EXECUTE.addEventListener("click", (event) => {
 PAUSE.addEventListener("click", (event) => {
     PAUSE.setAttribute("disabled", "");
     EXECUTE.removeAttribute("disabled");
+    EXECUTE_ONE.removeAttribute("disabled");
     oneFrame = true;
     noLoop();
 })
