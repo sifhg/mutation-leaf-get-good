@@ -23,7 +23,12 @@
         <input type="checkbox" id="custom-dna">
     </div>
     <div>
-        <button>Execute growth</button>
+        <button id="execute">Execute growth</button>
+        <button id="pause" disabled>Pause growth growth</button>
+        <button id="execute-one">Execute stepwise growth</button>
+        <div style="display: inline-block;">
+            Step: <span class="number-visualiser" id="step-counter">0</span>
+        </div>
     </div>
 
     <script src="events.js"></script>

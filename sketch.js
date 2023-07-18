@@ -5,6 +5,10 @@ let veinColour;
 let leafColourStrong;
 let leafColourWeak;
 let leafColourDamaged;
+let growerColours;
+
+let frameDisplay;
+
 document.addEventListener("DOMContentLoaded", (event)=> {
     let rootStyle = getComputedStyle(document.documentElement);
 
@@ -14,6 +18,9 @@ document.addEventListener("DOMContentLoaded", (event)=> {
     leafColourStrong = rootStyle.getPropertyValue("--leaf-colour-strong");
     leafColourWeak = rootStyle.getPropertyValue("--leaf-colour-weak");
     leafColourDamaged = rootStyle.getPropertyValue("--leaf-colour-damaged");
+    growerColours = rootStyle.getPropertyValue("--grower-colour");
+
+    frameDisplay = document.getElementById("step-counter");
 });
 
 function setAlpha(colour, alpha) {
@@ -145,29 +152,40 @@ class Grower {
     constructor(x, y, dir, DNA) {
         this.x = x;
         this.y = y;
-        this.direction = dir;
+        this.direction = dir; //direciton is an integer 0 <= dir < 6
         this.dna = DNA;
         this.neurons = [];
         this.kernelPosition = 0;
         this.kernelSize = 4;
 
+        if(!Number.isInteger(this.direction) || this.direction < 0 || this.direction > 5) {
+            console.error(`Grower's direction must be an integer between 0 and 5. direction is currently ${this.direction}`);
+        }
+
         /*
-        There are 4 inputs from the kernel moving over the DNA
-        There are 3 neurons in the first layer, each with a weight for each input (4) as well as a bias.
-        The first layer has a total number of 15 weights and biases.
+        There are 3 inputs from the kernel moving over the DNA.
+        There are 3 inputs from the wetness sensors.
+        There are 3 neurons in the first layer, each with a weight for each input (6) as well as a bias.
+        The first layer has a total number of 21 weights and biases.
         The second layer has each a weight for each neuron in the first layer (3), plus a bias.
         The second layer has a total of 12 weights and biases.
-        That gives a total number of 27 weights and biases.
+        That gives a total number of 33 weights and biases.
         */
-        this.neurons.push(new NeuronLayer(3, 4, this.dna[0,15]));
+        this.neurons.push(new NeuronLayer(3, 6, this.dna[0,15]));
         this.dna = this.dna.slice(15);
         this.neurons.push(new NeuronLayer(3, 3, this.dna));
         this.dna = DNA;
     }
+    display() {
+        noStroke();
+        fill()
+    }
 }
 
-let theGrid = new Grid(50, 50);
+let theGrid = new Grid(45, 30);
 let dayLength = 1000;
+let sunlight;
+let oneFrame = true;
 
 function setup() {
     const DISPLAY = document.getElementById("display");
@@ -177,12 +195,18 @@ function setup() {
     addEventListener("resize", (event) => {
         canvas.resize(DISPLAY.offsetWidth, DISPLAY.offsetHeight);
         background(backgroundColourDark);
+        background(mixColours(backgroundColourDark, backgroundColourLight, sunlight));
+        theGrid.display();
     });
 }
 
 function draw() {
-    background(mixColours(backgroundColourDark, backgroundColourLight, 
-        map((frameCount%dayLength < dayLength/2) ? frameCount%dayLength : dayLength-(frameCount%dayLength), 0, dayLength/2, 0, 1)));
+    sunlight = map((frameCount%dayLength < dayLength/2) ? frameCount%dayLength : dayLength-(frameCount%dayLength), 0, dayLength/2, 0, 1);
+    background(mixColours(backgroundColourDark, backgroundColourLight, sunlight));
+    //background(backgroundColourDark);
     theGrid.display();
-    
+    if(oneFrame) {
+        noLoop();
+    }
+    frameDisplay.textContent = frameCount%dayLength;
 }
