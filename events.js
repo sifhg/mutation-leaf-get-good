@@ -19,10 +19,13 @@ ALLOW_DNA.addEventListener('change', (event) => {
 
 DNA_GENERATE.addEventListener("click", (event) => {
     DNA_SEQUENCE.value = "";
+    let numbericalDNA = [];
     for(let i = 0; i < 33; i++) {
-        DNA_SEQUENCE.value += Math.floor(Math.random()*10);
+        const RANDOM_NUMBER = Math.floor(Math.random()*256);
+        DNA_SEQUENCE.value += String.fromCharCode(RANDOM_NUMBER +33);
+        numbericalDNA.push(RANDOM_NUMBER);
     }
-    theGrower = new Grower(0, Math.floor(theGrid.y/2), 3, DNA_SEQUENCE.value);
+    theGrower = new Grower(0, Math.floor(theGrid.y/2), 3, numbericalDNA);
     theGrower.display(theGrid);
 });
 

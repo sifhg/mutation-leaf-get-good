@@ -87,7 +87,7 @@ input[type="text"] {
     text-align: center;
     display: inline-block;
     font-family: 'Roboto', sans-serif;
-    letter-spacing: .125rem;
+    font-size: .75rem;
     width: 16rem;
 }
 input[type="text"]:disabled {
