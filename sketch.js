@@ -113,53 +113,34 @@ class Grid {
     }
 }
 
-class Neuron {
-    constructor(wb) {
-        this.weights = [];
-        this.bias = wb[wb.length];
-        for(let w = 0; w < wb.length-1; w++) {
-            this.weights.push(wb[w]);
-        }
-    }
-    activate(signalIn) {
-        if(signalIn.length != this.weights.length) {
-            console.error("Number of input signals to neuron must match number of weights");
-        }
-        let outputSignal = 0;
-        for(let w = 0; w < signalIn.length; w++) {
-            outputSignal += this.weights[w]*signalIn[w];
-        }
-        outputSignal += this.bias;
-        return outputSignal;
-    }
-}
-class NeuronLayer {
-    constructor(numberOfNeurons, numberOfInputs, wb) {
-        this.weightsAndBiases = wb;
-        if(numberOfNeurons * (numberOfInputs + 1) != wb.length) {
-            console.error("In a neuron layer, the number of inputs must match the length of array of weights and biases", {numberOfInputs: numberOfInputs}, {wb: wb});
-        }
-        this.neurons = [];
-        for(let n = 0; n < numberOfNeurons; n++) {
-            this.neurons.push(new Neuron(this.weightsAndBiases.slice(0,numberOfInputs+1)));
-            this.weightsAndBiases = this.weightsAndBiases.slice(numberOfInputs+1);
-        }
-    }
-}
-
 class Grower {
     constructor(x, y, dir, DNA) {
         this.x = x;
         this.y = y;
         this.direction = dir; //direciton is an integer 0 <= dir < 6
-        this.dna = DNA;
-        this.neurons = [];
+        this.dna = [];
+        for(const GENE of DNA) {
+            this.dna.push(GENE/256);
+        }
+
+        //Setting the TensorFlow neural model 
+        this.brain = tf.sequential();
+
+        //Add neuron layers
+        this.brain.add(tf.layers.dense({units: 3, activation: "relu", bias: true,
+                                        inputShape: [6]}));
+        this.brain.add(tf.layers.dense({units: 3, activation: "relu", bias: true}));
+
+        //Set weights and biases, so the correspond to the DNA
+        this.brain.setWeights(this.dna);
+
         this.kernelPosition = 0;
         this.kernelSize = 3;
 
         if(!Number.isInteger(this.direction) || this.direction < 0 || this.direction > 5) {
             console.error(`Grower's direction must be an integer between 0 and 5. direction is currently ${this.direction}`);
         }
+        
 
         /*
         There are 3 inputs from the kernel moving over the DNA.
@@ -170,10 +151,6 @@ class Grower {
         The second layer has a total of 12 weights and biases.
         That gives a total number of 33 weights and biases.
         */
-        this.neurons.push(new NeuronLayer(3, 6, this.dna.slice(0,21)));
-        this.dna = this.dna.slice(21);
-        this.neurons.push(new NeuronLayer(3, 3, this.dna));
-        this.dna = DNA;
     }
     display(grid) {
         noStroke();
@@ -210,7 +187,6 @@ class Grower {
 }
 
 let theGrid = new Grid(45, 30);
-let theGrower;
 let dayLength = 1000;
 let sunlight;
 let oneFrame = true;
