@@ -126,13 +126,24 @@ class Grower {
         //Setting the TensorFlow neural model 
         this.brain = tf.sequential();
 
-        //Add neuron layers
-        this.brain.add(tf.layers.dense({units: 3, activation: "relu", bias: true,
+        //Add input layer
+        this.brain.add(tf.layers.dense({units: 3,
+                                        activation: "relu",
+                                        bias: true,
                                         inputShape: [6]}));
-        this.brain.add(tf.layers.dense({units: 3, activation: "relu", bias: true}));
+
+        //Add hidden layer
+        this.brain.add(tf.layers.dense({units: 3,
+                                        activation: "relu",
+                                        bias: true}));
+
+        //Add output layer
+        this.brain.add(tf.layers.dense({units: 3,
+                                        activation: "sigmoid",
+                                        bias: true}));
 
         //Set weights and biases, so the correspond to the DNA
-        this.brain.setWeights(this.dna);
+        //this.brain.setWeights(this.dna);
 
         this.kernelPosition = 0;
         this.kernelSize = 3;
